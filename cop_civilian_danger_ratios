@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='UTF-8'>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+.a, 
+.b {
+	position:absolute; 
+	border:1px solid; 
+	height:20px; width:20px;
+}
+.a {
+	background-color:#cf7621;
+	left:100px;
+	top:100px;
+}
+.b {
+	background-color:#1100aa;
+}
+
+table {
+	width:400px; 
+	text-align:center;
+}
+
+#arena {
+	width:100%;
+	height:200px;
+	position:relative;
+}
+#a_team_interactionsers, 
+#b_team_interactionsers {
+	position:absolute;
+	height:200px;
+	width:200px;
+}
+#a_team_interactionsers {
+	left:25px;
+}
+#b_team_interactionsers {
+	left:275px;
+}
+</style>
+</head>
+<body style="text-align:center;">
+<div style="width:400px; margin-left:auto; margin-right:auto;">
+<h2>Pick ratio of players per team</h2>
+<table>
+	<tr>
+		<th>Team A</th>
+		<th></th>
+		<th>Team B</th>
+	</tr>
+	<tr>
+		<td>
+			<select id="a_player_count_el" onchange="updateAcount();">
+				<option selected>1</option>
+				<option>2</option>
+				<option>3</option>
+				<option>4</option>
+				<option>5</option>
+				<option>6</option>
+				<option>7</option>
+				<option>8</option>
+				<option>9</option>
+				<option>50</option>
+				<option>100</option>
+				<option>200</option>
+			</select>
+		</td>
+		<td>To</td>
+		<td>
+			<select id="b_player_count_el" onchange="updateBcount();">
+				<option>1</option>
+				<option>2</option>
+				<option>3</option>
+				<option>4</option>
+				<option>5</option>
+				<option>6</option>
+				<option>7</option>
+				<option>8</option>
+				<option>9</option>
+				<option>50</option>
+				<option>100</option>
+				<option selected>200</option>
+			</select>
+		</td>
+	</tr>
+</table>
+<hr>
+<h2>Pick team member danger ratio</h2>
+<table>
+	<tr>
+		<th>A team members</th>
+		<th></th>
+		<th>B team members</th>
+	</tr>
+	<tr>
+		<td>
+			<select id="a_player_danger_el" onchange="updateAdanger();">
+				<option>1</option>
+				<option>2</option>
+				<option>3</option>
+				<option>4</option>
+				<option>5</option>
+				<option>6</option>
+				<option>7</option>
+				<option>8</option>
+				<option>9</option>
+				<option selected>20</option>
+				<option>50</option>
+				<option>100</option>
+			</select>
+		</td>
+		<td>To</td>
+		<td>
+			<select id="b_player_danger_el" onchange="updateBdanger();">
+				<option selected>1</option>
+				<option>2</option>
+				<option>3</option>
+				<option>4</option>
+				<option>5</option>
+				<option>6</option>
+				<option>7</option>
+				<option>8</option>
+				<option>9</option>
+				<option>20</option>
+				<option>50</option>
+				<option>100</option>
+			</select>
+		</td>
+	</tr>
+</table>
+<hr>
+
+<h2>Let the players interact with each other; 1 at a time from each team.</h2>
+<button onclick="start_interactions();" 	id="start_button" 	style="display:inline-block;">	Start</button>
+<button onclick="resume_interactions();" 	id="resume_button" 	style="display:none;">			Resume</button>
+<button onclick="stop_interactions();" 		id="stop_button" 	style="display:none;">			Stop</button>
+<button onclick="reset(true);" 				id="reset_button" 	style="display:none;">			Reset</button>
+<hr>
+<h2>Outcomes</h2>
+<table>
+	<tr>
+		<th>A starting population</th>
+		<th>B starting population</th>
+	</tr>
+	<tr>
+		<td id="a_start_pop_el">100</td>
+		<td id="b_start_pop_el">20000</td>
+	</tr>
+</table>
+<hr>
+
+<p>Interaction count: <span id="interaction_count_el">0</span></p>
+<hr>
+<table>
+	<tr>
+		<th>As killed by Bs</th>
+		<th>Bs killed by As</th>
+	</tr>
+	<tr>
+		<td id="as_k_by_bs_el">0</td>
+		<td id="bs_k_by_as_el">0</td>
+	</tr>
+</table>
+<table>
+	<tr>
+		<th>Percent of As killed</th>
+		<th>Percent of Bs killed</th>
+	</tr>
+	<tr>
+		<td id="a_k_percent_el">0%</td>
+		<td id="b_k_percent_el">0%</td>
+	</tr>
+</table>
+<hr>
+<table>
+	<tr>
+		<th>B's seen by A's before A killed</th>
+		<th>A's seen by B's before B killed</th>
+	</tr>
+	<tr>
+		<td id="bs_seen_a_killed_el">0</td>
+		<td id="as_seen_b_killed_el">0</td>
+	</tr>
+</table>
+</div>
+<script type="text/javascript">
+
+var a_player_count 		= a_player_count_el.options[a_player_count_el.selectedIndex].text * 100,
+	b_player_count		= b_player_count_el.options[b_player_count_el.selectedIndex].text * 100,
+	a_player_danger		= a_player_danger_el.options[a_player_danger_el.selectedIndex].text * 30,
+	b_player_danger		= b_player_danger_el.options[b_player_danger_el.selectedIndex].text * 30,
+	interaction_count	= 0,
+	as_k_by_bs			= 0,
+	bs_k_by_as			= 0,
+	a_k_percent			= 0,
+	b_k_percent			= 0,
+	bs_seen_a_killed	= "Infinity",
+	as_seen_b_killed	= "Infinity";
+	
+	
+	
+
+var stop = false;
+function interaction(timestamp) {
+  
+	if (stop === false) {
+
+		if(
+			as_k_by_bs < a_player_count &&
+			bs_k_by_as < b_player_count
+		){
+		
+			runInteraction();
+
+			window.requestAnimationFrame(interaction);
+		}
+		else {
+		
+			stop = false;
+			
+			stop_button.style.display = "none";
+		}
+	}
+}
+
+function runInteraction(){
+	
+	interaction_count++;
+	
+	if( (Math.floor(Math.random() * 10000) + 1) <= b_player_danger ){ 
+		
+		as_k_by_bs++;
+	}
+	
+	if( (Math.floor(Math.random() * 10000) + 1) <= a_player_danger ){ 
+		
+		bs_k_by_as++;
+	}
+	
+	a_k_percent			= Math.round(as_k_by_bs / a_player_count*1000)/10 + "%";
+	b_k_percent			= Math.round(bs_k_by_as / b_player_count*1000)/10 + "%";
+	
+	bs_seen_a_killed	= Math.round(interaction_count / as_k_by_bs * 100)/100;
+	as_seen_b_killed	= Math.round(interaction_count / bs_k_by_as * 100)/100;
+	
+	as_k_by_bs_el.innerHTML = as_k_by_bs;
+	bs_k_by_as_el.innerHTML = bs_k_by_as;
+	
+	a_k_percent_el.innerHTML = a_k_percent;
+	b_k_percent_el.innerHTML = b_k_percent;
+	
+	bs_seen_a_killed_el.innerHTML = bs_seen_a_killed;
+	as_seen_b_killed_el.innerHTML = as_seen_b_killed;
+	
+	interaction_count_el.innerHTML = interaction_count;
+}
+
+function start_interactions(){
+	
+	stop = false;
+	
+	window.requestAnimationFrame(interaction);
+	
+	start_button.style.display = "none";
+	stop_button.style.display = "inline-block";
+	resume_button.style.display = "none";
+	reset_button.style.display = "inline-block";
+}
+
+function stop_interactions(){
+	
+	stop = true;
+	
+	start_button.style.display = "none";
+	stop_button.style.display = "none";
+	resume_button.style.display = "inline-block";
+	reset_button.style.display = "inline-block";
+}
+
+function resume_interactions(){
+	
+	stop = false;
+	
+	start_button.style.display = "none";
+	stop_button.style.display = "inline-block";
+	resume_button.style.display = "none";
+	reset_button.style.display = "inline-block";
+	
+	window.requestAnimationFrame(interaction);
+}
+
+function reset(){
+
+	stop = true;
+	
+	interaction_count	= 0;
+	as_k_by_bs			= 0;
+	bs_k_by_as			= 0;
+	a_k_percent			= 0;
+	b_k_percent			= 0;
+	bs_seen_a_killed	= "Infinity";
+	as_seen_b_killed	= "Infinity";
+	
+	interaction_count_el.innerHTML	= interaction_count;
+	as_k_by_bs_el.innerHTML			= as_k_by_bs;
+	bs_k_by_as_el.innerHTML			= bs_k_by_as;
+	a_k_percent_el.innerHTML		= a_k_percent;
+	b_k_percent_el.innerHTML		= b_k_percent;
+	bs_seen_a_killed_el.innerHTML 	= bs_seen_a_killed;
+	as_seen_b_killed_el.innerHTML 	= as_seen_b_killed;
+	
+	start_button.style.display = "inline-block";
+	stop_button.style.display = "none";
+	resume_button.style.display = "none";
+	reset_button.style.display = "none";
+}
+
+function updateAcount(){
+	
+	reset();
+	
+	a_player_count 	= a_player_count_el.options[a_player_count_el.selectedIndex].text * 100;
+	
+	a_start_pop_el.innerHTML = a_player_count;
+}
+
+function updateBcount(){
+	
+	reset();
+	
+	b_player_count 	= b_player_count_el.options[b_player_count_el.selectedIndex].text * 100;
+	
+	b_start_pop_el.innerHTML = b_player_count;
+}
+
+function updateAdanger(){
+	
+	reset();
+	a_player_danger	= a_player_danger_el.options[a_player_danger_el.selectedIndex].text * 30;
+}
+
+function updateBdanger(){
+	
+	reset();
+	b_player_danger	= b_player_danger_el.options[b_player_danger_el.selectedIndex].text * 30;	
+}
+
+
+</script>
+</body>
+</html>
