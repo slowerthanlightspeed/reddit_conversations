@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="user-scalable=no">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, minimum-scale=1.0">
+
+	<title>CoViD Data Done Right</title>
+
+	<link type="text/css" rel="stylesheet" href="box_reset_normalize_clearfix.css">
+	<style>
+		#site_nav{
+			float:left;
+			padding:0 12px 0 0;
+			width:100%;
+			background-color: #ccc;
+		}
+		#chart_target{
+			float:left;
+			width:100%;
+		}
+		h1{
+			padding:1px 0;
+		}
+		h1 span{
+			font-weight:900;
+			border:1px solid #666;
+			border-left:0;
+			border-radius:5px;
+			padding:1px 8px;
+			background-color:#fff;
+			cursor:pointer;
+		}
+		
+		#menus_wrapper{
+			display:none;
+			position:absolute;
+			left:0;
+			top:25px;
+			z-index:9999;
+			background-color:#ccc;
+			padding:6px;
+			border:4px solid #bbb;
+			border-radius:10px;
+		}
+		#menus_wrapper p{
+			padding-bottom:8px;
+		}
+		
+		#menu_button_wrapper{
+			border-bottom:1px solid #bbb;
+			margin-bottom:4px;
+			padding-bottom:3px;
+		}
+		#menu_button_wrapper button{
+			float:left;
+			margin-right:6px;
+		}
+		
+		#main_menu_wrapper{
+			padding:8px 8px;
+			background-color:#fff;
+			border:1px solid #888;
+			border-radius:5px;
+		}	
+		#chart_menu_wrapper{
+			display:none;
+			padding:8px;
+			background-color:#fff;
+			border:1px solid #888;
+			border-radius:5px;
+		}	
+		#about_menu_wrapper{
+			display:none;
+			padding:2px 8px;
+			background-color:#fff;
+			border:1px solid #888;
+			border-radius:5px;
+		}
+		
+		.chosen{
+			background-color:#fff;
+			border:0;
+			padding:3px 4px;
+			cursor:default;
+		}
+		
+		#preview_image{
+			height:866px;
+		}
+		
+		*:hover, 
+		*:focus{
+				border-color:red;
+		}
+	
+	</style>
+
+	<style>
+		.minMet{} .insufficientData{
+			background-color:#6aa; 
+			color:#000;
+		} 
+		.ageOnly, .covidOnly{
+			background-color:#6aa; 
+			color:#000;
+		} 
+		.subMin{
+			background-color:#0f7; 
+			color:#000;
+		} /*
+		select{
+			height:300px; 
+			padding:0 5px; 
+			width:100%;
+		} */
+		option{
+			border-radius:4px;
+		} 
+		option{
+			border:1px solid black; 
+			margin:5px 0; 
+			padding:4px;
+		} 
+		.insufficientData, 
+		.ageOnly, 
+		.covidOnly{
+			display:none;
+		} 
+		.subMin{
+			border:0; 
+			border-radius:0;
+		} 
+		.chartMenuSection{
+			width:333px;
+		} 
+		select[multiple] {
+			height: 40px; 
+			width:150px; 
+			vertical-align:top;
+		} 
+		select[multiple]:focus, 
+		select[multiple]:active {
+			height: 250px; 
+			width:300px;
+		}
+	</style>
+</head>
+
+<body>
+<div id="site_nav">
+	
+	<h1><span tabindex="0">Worst-Case-Normalized CoViD-19 Tracker</span></h1>
+	
+	<div id="menus_wrapper">
+		
+		<div id="menu_button_wrapper" class="clearfix">
+			
+			<button id="main_menu_button" class="chosen"	>	Main Menu	</button>
+			<button id="chart_menu_button"					>	Chart Menu	</button>
+			<button id="about_menu_button"					>	About		</button>
+		</div>
+		
+		<div id="main_menu_wrapper">
+			
+			<p>
+			  <label for="main_menu">Data Sets and Sources:<br>
+				<select id="main_menu">
+				  <!-- <optgroup label="Nations"> -->
+					<option value="jhu_nations_wc" selected='selected'>Johns Hopkins University</option>
+					<option value="owid_nations_wc">Our World In Data</option>
+					<option value="dhub_nations_wc">Data Hub</option>
+					<!-- <option value="ecdc_nations_wc">European CDC</option> -->
+					<!--
+				  </optgroup>
+				  <optgroup label="US States">
+					<option value="ctp_usStates_wc">CoViD Tracking Project</option>
+					<option value="nyt_usStates_wc">New York Times</option>
+				  </optgroup>
+				  <optgroup label="US Counties">
+					<option value="jhu_usCounties_wc">Johns Hopkins University</option>
+					<option value="nyt_usCounties_wc">New York Times</option>
+					<option value="usf_usCounties_wc">USA Facts</option>
+					</optgroup> 
+					-->
+				</select>
+			  </label>
+			</p>
+			<!--
+			<p><label for="dataset_select">	Data Sets:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<select id="dataset_select">	
+				<option id="">Countries		</option>
+				<option id="">US States		</option>
+				<option id="">US Counties	</option>
+			</select></label></p>
+			
+			<p><label for="source_select">	Data Sources:&nbsp;&nbsp	<select id="source_select">	
+				<option id="">OWID		</option>
+				<option id="">JHU CSSE	</option>
+				<option id="">USA Facts	</option>
+				<option id="">UN		</option>
+			</select></label></p>
+			-->
+			<hr>
+			
+			<p><label for="library_select">	Chart Libraries:			<select id="library_select">	
+				<option value="google">Google Charts</option>
+				<option value="chartjs">ChartJS</option>
+				<option value="fusioncharts">FusionCharts</option>
+			</select></label></p>
+		</div>
+		
+		<div id="chart_menu_wrapper">
+			
+			<button id="draw_chart_choices" style="margin-right:8px;">Draw Choices</button>
+			<button id="clear_chart_choices" style="margin-right:8px;">Clear Choices</button>
+			<button id="axis_lock">🔒 Axis</button>
+			
+			<hr>
+			<div id="chart_selects"></div>
+			
+			<!--
+			<p><label for="individual_select">		Individual Countries	<select id="individual_select">	</select></label></p>
+			<p><label for="geoPolitical_select">	Geopolitical Groupings	<select id="geoPolitical_select"></select></label></p>
+			<p><label for="outcomeGroup_select">	Outcome Groupings		<select id="outcomeGroup_select"></select></label></p>
+			-->
+			<!-- <button>show averages</button> -->
+			<!-- also, build these dynamically in the data_worker -->
+		</div>
+		
+		<div id="about_menu_wrapper" style="height:500px; overflow:scroll;">
+		
+			<p>Worst-Case-Normalized Metric</p>
+			<div style='border:1px solid black; border-radius:5px; padding:6px; width:400px;'>
+				<h4 style='font-size:20px;'>The Worst-Case-Normalized (WCN) metric:</h4>
+				<p>By utilizing the equation for age specificity of CoViD-19 infection fatality rates seen in the <a href='https://link.springer.com/article/10.1007/s10654-020-00698-1#Fig3' target='_blank'>European Journal for Epidemiology</a> --- 10^( -3.27(+/-0.07) + age * 0.0524(+/-0.0013) ), and the age distributions per country <a href='https://population.un.org/wpp/DataQuery/' target='_blank'>provided by the UN</a>, it is possible to determine worst-case death estimates per country.</p>
+				<h4 style='font-size:20px;'>Why use Worst-Case-Normalization (WCN)?</h4>
+				<p>Broadly, because it’s our best shot at apples to apples comparisons.</p>
+				<p>Specifically, because worst-case population death rates differ significantly between nations:<br>
+				Uganda – 0.13%<br>
+				Japan – 2.71%<br>
+				… meaning that per-capita comparisons can be misleading by as much as a factor of 20.</p>
+			</div>
+			<p>Intepreting the Graphs</p>
+			<div style='border:1px solid black; border-radius:5px; padding:6px; width:400px;'>
+				<p>While WCN provides a better, general comparison metric, graphing the days between percentage-wise steps towards a country’s worst-case-normalized death rates provides the clearest information about a country’s successes or failures to curb the spread of CoViD-19 over time.</p>
+				<h4 style='font-size:20px;'>The Y-axis:</h4>
+				<p>The Y-axis is the number of days that have passed.</p>
+				<h4 style='font-size:20px;'>The X-axis</h4>
+				<p>The X-axis is the percentage of a country's worst case deaths that they're reportedly suffered.</p>
+			</div>
+			<p>Why I made this</p>
+		</div>
+	</div>
+</div>
+
+<div id="chart_target" class="clearfix"><p><img id="preview_image" src="images/default_mix_preview_googleChart.png"></p></div>
+
+
+<!-- <script src="main_thread.js"></script>// MAIN THREAD -->
+<script>
+let edj_covid = (function(window, document){
+
+	// Get DOM elements
+	let body			= document.body;
+	
+	let headingEl		= document.getElementsByTagName('H1')[0].getElementsByTagName('SPAN')[0];
+	
+	let menusWrapper 		= document.getElementById("menus_wrapper");
+	let menus 				= menusWrapper.children;
+	let mainMenu			= document.getElementById('main_menu');
+	let menuButtonWrapper 	= document.getElementById("menu_button_wrapper");
+	let menuButtons			= menuButtonWrapper.children;
+	let chartSelects		= document.getElementById("chart_selects");
+	let drawChartButton		= document.getElementById("draw_chart_choices");
+	let clearSelections		= document.getElementById("clear_chart_choices");
+	let axisLock			= document.getElementById("axis_lock");
+	
+	let librarySelect 	= document.getElementById("library_select");
+	let sourceSelect 	= document.getElementById("source_select");
+	let datasetSelect 	= document.getElementById("dataset_select");
+	
+	let individSelect 	= document.getElementById("individual_select");
+	let geoPolSelect 	= document.getElementById("geoPolitical_select");
+	let outGrouSelect 	= document.getElementById("outcomeGroup_select");
+	
+	let chartTarget 	= document.getElementById("chart_target");
+	
+	let chosenNations	= {"chartMenu_10000":{"10000":1},"chartMenu_11000":{"11000":1},"chartMenu_12000":{"12000":1},"chartMenu_13000":{"13000":1},"chartMenu_14000":{}};
+	// Set initial queryObj
+	// To be updated and passed around
+	let queryObj = {
+		'dataFile'	:'dhub_nations_wc', // // nyt_states_wc this is the dataFile we should load (just once per file)
+		'options'	:{'choiceArr':["10000","11000","12000","13000"],'whichSet':"nations",'lockedAxes':true}, //  // default is the list of "continents" that have hit 0.5% in at least one country
+	 	'routeTo'	:'google' // this is the main thread function that will handle our postMessage
+	};
+	
+	// COMPATIBILITY
+	
+	// cross-browser, simple add event listener function
+	let compat_AddListener;
+	if(document.addEventListener || window.addEventListener){
+		
+		compat_AddListener = function(thisElement, eventType, funcOrObj, objFunc){
+			
+			if(objFunc){
+				thisElement.addEventListener(eventType, funcOrObj[objFunc], false);
+			}
+			else{
+				thisElement.addEventListener(eventType, funcOrObj, false);
+			}			
+		};
+	}
+	else{
+		
+		compat_AddListener = function(thisElement, eventType, funcOrObj, objFunc){
+			
+			if(objFunc){
+				thisElement.attachEvent("on"+eventType, funcOrObj[objFunc], false);
+			}
+			else{
+				thisElement.attachEvent("on"+eventType, funcOrObj);
+			}
+		};
+	}
+
+	// CROSS-BROWSER EVENT PROPERTY ARRAY 
+	// [FOR USE WITH CLICK VALIDATOR]
+	var valids = [
+		["which",	[0,1,13,32]],
+		["button",	[0,1,13,32]],
+		["keyCode",	[0,1,13,32]],
+		["key",		["Enter"," "]],
+		["code",	["Enter","Space"]]
+	];
+	
+	/////////////////////////////////////////
+	// CROSS-BROWSER ARRAY AND STRING CONTAINS LAMBDA (RETURNS TRUE OR FALSE)
+	function a_contains_b(a,b){
+		
+		if(a.includes && a.includes(b)){return true;}
+		else if(a.indexOf && a.indexOf(b)!==-1){return true;}
+		else {
+			for (var i = 0, imax=a.length; i < imax; i++) {
+				if (a[i] === b) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/////////////////////////////////////////
+	// CROSS-BROWSER CLICK VALIDATOR LAMBDA (RETURNS TRUE OR FALSE) 
+	// [REQURIES CROSS-BROWSER EVENT PROPERTY ARRAY (VALIDS)]
+	function isValidClick(evnt){
+		
+		for(var j=0, jmax=valids.length; j<jmax; j++){
+			if ( a_contains_b(valids[j][1], evnt[valids[j][0]]) ){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	// cross-browser click target lambda (returns reference to target of click)
+	function clickedWhat(e){
+		
+		e.preventDefault();
+		e.stopPropagation();
+		
+		var clickedThis;
+		
+		if 		(e.target){						clickedThis = e.target;} 
+		else if (e.srcElement){					clickedThis = e.srcElement;}
+		if 		(clickedThis.nodeType === 3){	clickedThis = clickedThis.parentNode;}
+		
+		return clickedThis;
+	};
+	
+	
+	// Avoid scroll bars
+	var width, height, chartHeight;
+	
+	let pageLoaded = 0;
+	
+	function resize(){
+	
+		width = window.innerWidth
+			|| document.documentElement.clientWidth
+			|| document.body.clientWidth;
+			
+		height = window.innerHeight
+			|| document.documentElement.clientHeight
+			|| document.body.clientHeight;
+
+		body.style.width 	= width + "px";
+		body.style.height 	= height + "px";
+		
+		chartHeight 				= height - 26;
+		
+		chartTarget.style.height	= chartHeight 	+ "px";
+		chartTarget.style.width		= width 		+ "px";
+		
+		if(pageLoaded){
+			requestData(queryObj);
+		}
+	}
+	resize();
+	compat_AddListener(window, 'resize', resize);
+	
+	
+	// Menu functions
+	function showHideMainMenu(e){
+		
+		if(!isValidClick(e)){return false;}
+		
+		if(menusWrapper.style.display === "block"){
+			menusWrapper.style.display = "none";
+		}
+		else{
+			menusWrapper.style.display = "block"
+		}
+	}
+	compat_AddListener(headingEl, 'click', showHideMainMenu);
+	compat_AddListener(headingEl, 'keyup', showHideMainMenu);
+	
+	function switchMenus(e){
+	
+		if(!isValidClick(e)){return false;}
+		
+		let clickedThis = clickedWhat(e);
+		
+		let whichMenu = clickedThis.id.split("_")[0] + "_menu_wrapper";
+		
+		whichMenu = document.getElementById(whichMenu);
+		
+		for(let i=1, imax=menus.length; i<imax; i++){
+			
+			menus[i].style.display="none";
+			
+			whichMenu.style.display="block";
+		}
+		
+		for(let j=0, jmax=menuButtons.length; j<jmax; j++){
+			
+			menuButtons[j].className = "";
+			
+			clickedThis.className = "chosen";
+		}
+		
+		whichMenu.focus();
+	}
+	compat_AddListener(menuButtonWrapper, 'click', switchMenus);
+	compat_AddListener(menuButtonWrapper, 'keyup', switchMenus);
+	
+	function lockUnlockAxes(e){
+		
+		if(!isValidClick(e)){return false;}
+		
+		if(queryObj.options.lockedAxes){
+			axisLock.innerHTML = "🔓 Axis";
+		}
+		else{
+			axisLock.innerHTML = "🔒 Axis"
+		}
+		
+		queryObj.options.lockedAxes = !queryObj.options.lockedAxes;
+		
+		requestData(queryObj);
+	}
+	compat_AddListener(axisLock,'click', lockUnlockAxes);
+	compat_AddListener(axisLock,'keyup', lockUnlockAxes);
+	
+	function placeChartMenuHTML(incomingHTML){
+		
+		chartSelects.innerHTML = incomingHTML;
+			
+		for(let key in chosenNations){
+		
+			updateChartSelects( document.getElementById(key), key );
+		}
+	}
+	
+	function drawChart(e){
+		
+		if(!isValidClick(e)){return false;}
+		
+		queryObj.options.choiceArr = [];
+		let selects = chartSelects.getElementsByTagName("SELECT");
+		let opt;
+		// loop through the choices in the chartSelects
+		for(let i=0, imax=selects.length; i<imax; i++){
+			
+			for(opt in selects[i].selectedOptions){
+				
+				if(selects[i].selectedOptions.hasOwnProperty(opt)){
+					
+					queryObj.options.choiceArr.push(selects[i].selectedOptions[opt].value);
+				}
+			}
+		}
+		
+		requestData(queryObj);
+		
+		e.stopPropagation();
+	}
+	compat_AddListener(drawChartButton, 'click', drawChart);
+	// compat_AddListener(drawChartButton, 'keyup', drawChart);
+	
+	function clearChoices(e){
+		
+		if(!isValidClick(e)){return false;}
+		
+		let selects = chartSelects.getElementsByTagName("SELECT");
+		let options;
+		let j, jmax;
+		// loop through the choices in the chartSelects
+		for(let i=0, imax=selects.length; i<imax; i++){
+			
+			options = selects[i];
+
+			for(j = 0, jmax=options.length; j < jmax; j++){
+				options[j].selected = false;
+			}
+		}
+		queryObj.options.choiceArr = [];
+		requestData(queryObj);
+	}
+	compat_AddListener(clearSelections, "click", clearChoices);
+	// compat_AddListener(clearSelections, "keyup", clearChoices);
+	
+	function updateChartSelects(select, key){
+		
+		let opt; 
+		
+		let options = select && select.options;
+		
+		if(options && options.length){
+			
+			for (let i=0, iLen=options.length; i<iLen; i++) {
+				
+				opt = options[i];
+
+				if (chosenNations[key][opt.value]) {
+					opt.selected = 'selected';
+				}
+				else{
+					opt.selected = false;
+				}
+			}
+		}
+	}
+	
+	function getSelects(select) {
+		
+		let result = false;
+		
+		let options = select && select.options;
+		
+		let opt;
+
+		if(options && options.length){
+		
+			result = {};
+			
+			for (let i=0, iLen=options.length; i<iLen; i++) {
+				
+				opt = options[i];
+
+				if (opt.selected) {
+					
+					result[opt.value] = 1;
+				}
+			}
+		}
+		return result;
+	}
+	
+	function captureChartSelects(){
+	
+		for(let key in chosenNations){
+			
+			chosenNations[key] = getSelects( document.getElementById(key) ) || chosenNations[key];
+		}
+		
+	}
+	
+	function changeSource(e){
+		
+		queryObj.dataFile = clickedWhat(e).value;
+		
+		if(document.getElementById('chartMenu_10000')){
+		
+			captureChartSelects();
+		}
+		
+		requestData(queryObj);
+	}
+	compat_AddListener(mainMenu, 'change', changeSource);
+	
+	function changeLibrary(e){
+		
+		loadLibrary( clickedWhat(e).value );
+	}
+	compat_AddListener(librarySelect, 'change', changeLibrary);
+	
+	// Data and library
+	// properties and methods
+	let data_worker;
+	
+	let currentLibrary;
+		
+	let availableSubsets = {
+		"Asia":{
+			"Eastern Asia":{"meetMin":[],"notEnough":{"156":1,"392":1,"496":1,"410":1,"158":1},"ageNoCovid":{"344":1,"446":1,"408":1},"remaining":[]},
+			"Central Asia":{"meetMin":{"398":1,"417":1,"860":1},"notEnough":{"762":1},"ageNoCovid":{"795":1},"remaining":[]},
+			"Southeastern Asia":{"meetMin":{"360":1,"104":1,"608":1},"notEnough":{"96":1,"458":1,"702":1,"764":1,"704":1},"ageNoCovid":{"116":1,"418":1,"626":1},"remaining":[]},
+			"Southern Asia":{"meetMin":{"4":1,"50":1,"356":1,"364":1,"462":1,"524":1,"586":1},"notEnough":{"64":1,"144":1},"ageNoCovid":[],"remaining":[]},
+			"Western Asia":{"meetMin":{"51":1,"31":1,"48":1,"196":1,"268":1,"368":1,"376":1,"400":1,"414":1,"422":1,"512":1,"275":1,"634":1,"682":1,"760":1,"792":1,"784":1,"887":1},"notEnough":[],"ageNoCovid":[],"remaining":[]}
+		},
+		"Africa":{
+			"Central Africa":{"meetMin":{"120":1,"140":1,"178":1,"226":1,"266":1,"678":1},"notEnough":{"148":1,"180":1},"ageNoCovid":[],"remaining":[]},
+			"Eastern Africa":{"meetMin":{"174":1,"262":1,"231":1,"404":1,"454":1,"646":1,"800":1},"notEnough":{"108":1,"232":1,"450":1,"480":1,"690":1,"706":1,"728":1,"834":1},"ageNoCovid":{"175":1,"638":1},"remaining":{"86":1,"260":1}},
+			"Northern Africa":{"meetMin":{"12":1,"818":1,"434":1,"504":1,"729":1,"788":1},"notEnough":[],"ageNoCovid":{"732":1},"remaining":[]},
+			"Southern Africa":{"meetMin":{"24":1,"72":1,"426":1,"516":1,"710":1,"748":1,"894":1,"716":1},"notEnough":{"508":1},"ageNoCovid":[],"remaining":[]},
+			"Western Africa":{"meetMin":{"132":1,"270":1,"288":1,"624":1,"430":1,"466":1,"478":1,"686":1,"694":1},"notEnough":{"204":1,"854":1,"384":1,"324":1,"562":1,"566":1,"768":1},"ageNoCovid":[],"remaining":{"654":1}}
+		},
+		"Americas":{
+			"Caribbean":{"meetMin":{"28":1,"44":1,"214":1,"332":1,"388":1,"662":1,"780":1},"notEnough":{"52":1,"192":1,"308":1,"670":1},"ageNoCovid":{"533":1,"531":1,"312":1,"474":1,"630":1},"remaining":{"660":1,"535":1,"92":1,"136":1,"212":1,"500":1,"652":1,"659":1,"663":1,"534":1,"796":1}},
+			"Central America":{"meetMin":{"84":1,"188":1,"222":1,"320":1,"340":1,"484":1,"558":1},"notEnough":[],"ageNoCovid":[],"remaining":[]},
+			"Northern America":{"meetMin":{"124":1,"840":1},"notEnough":[],"ageNoCovid":[],"remaining":{"60":1,"304":1,"666":1}},
+			"South America":{"meetMin":{"32":1,"68":1,"76":1,"152":1,"170":1,"218":1,"328":1,"600":1,"604":1,"740":1,"858":1,"862":1},"notEnough":[],"ageNoCovid":{"254":1},"remaining":{"74":1,"238":1,"239":1}}
+		},
+		"Europe":{
+			"Eastern Europe":{"meetMin":{"112":1,"100":1,"203":1,"348":1,"498":1,"616":1,"642":1,"643":1,"703":1,"804":1},"notEnough":[],"ageNoCovid":[],"remaining":[]},
+			"Northern Europe":{"meetMin":{"208":1,"233":1,"246":1,"352":1,"372":1,"428":1,"440":1,"578":1,"752":1,"826":1},"notEnough":[],"ageNoCovid":{"830":1},"remaining":{"248":1,"234":1,"833":1,"744":1}},
+			"Southern Europe":{"meetMin":{"8":1,"70":1,"191":1,"300":1,"380":1,"807":1,"470":1,"499":1,"620":1,"688":1,"705":1,"724":1},"notEnough":{"20":1,"674":1},"ageNoCovid":[],"remaining":{"292":1,"336":1}},
+			"Western Europe":{"meetMin":{"40":1,"56":1,"250":1,"276":1,"442":1,"528":1,"756":1},"notEnough":{"438":1,"492":1},"ageNoCovid":[],"remaining":{"831":1,"832":1}}
+		},
+		"Oceania":{
+			"Antarctica":{"meetMin":[],"notEnough":[],"ageNoCovid":[],"remaining":{"10":1}},
+			"Australia & New Zealand":{"meetMin":[],"notEnough":{"36":1,"554":1},"ageNoCovid":[],"remaining":{"162":1,"166":1,"334":1,"574":1}},
+			"Melanesia":{"meetMin":[],"notEnough":{"242":1,"598":1},"ageNoCovid":{"540":1,"90":1,"548":1},"remaining":[]},
+			"Micronesia":{"meetMin":[],"notEnough":[],"ageNoCovid":{"316":1,"296":1,"583":1},"remaining":{"584":1,"520":1,"580":1,"585":1,"581":1}},
+			"Polynesia":{"meetMin":[],"notEnough":[],"ageNoCovid":{"258":1,"882":1,"776":1},"remaining":{"16":1,"184":1,"570":1,"612":1,"772":1,"798":1,"876":1}}
+		}
+	};
+	
+	
+	let availableLibraries = {
+		'billboard':{
+			'name':"billboard.js",
+			'logoFile':"../images/libraryLogos/billboard.png",
+			'homepage':"https://naver.github.io/billboard.js/",
+			'libraryFiles':{
+				'js':["https://d3js.org/d3.v5.min.js","../libraries/billboard/billboard.js"],
+				'css':["../libraries/billboard/billboard.css","../libraries/billboard/theme/insight.css"]
+			},
+			'isLoaded':{'fileCount':0, 'loaded':0}
+		}, 
+		'chartist_js':{
+			'name':"",
+			'logoFile':"../images/libraryLogos/chartist.png",
+			'homepage':"",
+			'libraryFiles':{
+				'js':[],
+				'css':[]
+			},
+			'isLoaded':{'fileCount':0, 'loaded':0}
+		},
+		'chartjs':{
+			'name':"",
+			'logoFile':"../images/libraryLogos/chartDotJS.png",
+			'homepage':"https://www.chartjs.org/",
+			'libraryFiles':{
+				'js':["https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.bundle.min.js"], 
+				'css':["https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.css"]
+			},
+			'isLoaded':{'fileCount':1, 'loaded':0}
+		},
+		'fusioncharts':{
+			'name':"",
+			'logoFile':"../images/libraryLogos/fusionChartsBigger.png",
+			'homepage':"https://www.fusioncharts.com/",
+			'libraryFiles':{
+				'js':["https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.js","https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.charts.js"],//,"https://cdn.fusioncharts.com/fusioncharts/latest/themes/fusioncharts.theme.fusion.js","https://cdn.fusioncharts.com/fusioncharts/latest/fusioncharts.maps.js"
+				'css':[]
+			},
+			'isLoaded':{'fileCount':2, 'loaded':0}
+		},
+		'google':{
+			'name':"Google Charts",
+			'logoFile':"../images/libraryLogos/Google-Chart-Tools-logo1.png",
+			'homepage':"https://developers.google.com/chart",
+			'libraryFiles':{
+				'js':["https://www.gstatic.com/charts/loader.js"],
+				'css':[]
+			},
+			'isLoaded':{'fileCount':1, 'loaded':0}
+		},
+		'pluscharts':{
+			'name':"",
+			'logoFile':"../images/libraryLogos/plusCharts.png",
+			'homepage':"",
+			'libraryFiles':{
+				'js':[],
+				'css':[]
+			},
+			'isLoaded':{'fileCount':0, 'loaded':0}
+		},
+		'rgraph':{
+			'name':"",
+			'logoFile':"../images/libraryLogos/rgraph.png",
+			'homepage':"",
+			'libraryFiles':{
+				'js':[],
+				'css':[]
+			},
+			'isLoaded':{'fileCount':0, 'loaded':0}
+		}
+	};
+	
+	// Define libraryLoaded listener object;
+	// holds methods for each chart library.
+	let libraryLoadedHandlers = {
+		// Grab/create chart target element.
+		// Recognize other readiness state.
+		// 'billboard':function(){},
+		// 'chartist_js':function(){},
+		'chartjs':function(){
+			
+			let fileLoadTracker = availableLibraries['chartjs'].isLoaded;
+			
+			fileLoadTracker.loaded++;
+			
+			if(fileLoadTracker.fileCount === fileLoadTracker.loaded){
+			
+				fileLoadTracker.loaded = 0;
+				
+				queryObj.routeTo = 'chartjs';
+				
+				requestData(queryObj);
+			}
+			
+		},
+		'fusioncharts':function(){
+		
+			let fileLoadTracker = availableLibraries['fusioncharts'].isLoaded;
+			
+			fileLoadTracker.loaded++;
+
+			if(fileLoadTracker.fileCount === fileLoadTracker.loaded){
+				
+				fileLoadTracker.loaded = 0;
+				
+				queryObj.routeTo = 'fusioncharts';
+				
+				requestData(queryObj);
+			}
+		},
+		'google':function(){
+			
+			let fileLoadTracker = availableLibraries['google'].isLoaded;
+			
+			fileLoadTracker.loaded++;
+
+			if(fileLoadTracker.fileCount === fileLoadTracker.loaded){ // ?race condition?
+			
+				google.charts.load('current', {'packages':['line']});
+				
+				fileLoadTracker.loaded = 0;
+				
+				queryObj.routeTo = 'google';
+				
+				google.charts.setOnLoadCallback(function(){
+					requestData(queryObj);
+				});
+			}
+			
+		},
+		// 'pluscharts':function(){},
+		'rgraph':function(){}
+	}
+	
+	// Define library-dependent methods
+	// for loading chart data,
+	// and for updating chart settings.
+	let buildCharts = {
+		// 'billboard':function(responseObj){},
+		// 'chartist_js':function(responseObj){},
+		'chartjs':function(responseObj){
+			
+			let config 		= responseObj.config;
+			let extraInfo 	= responseObj.extraInfo;
+			
+			config.options.tooltips.callbacks.afterLabel = function(tooltipItem) {
+				// return tooltipItem.datasetIndex;
+				return 'days later; on: ' + extraInfo[tooltipItem.datasetIndex][tooltipItem.index];
+			};
+			
+			chartTarget.innerHTML = '<canvas id="myChart" width='+width+'px; height='+chartHeight+'px;></canvas>';
+			
+			let ctx 	= document.getElementById('myChart').getContext('2d');
+			
+			let myLine = new Chart(ctx, config);
+		},
+		'fusioncharts':function(responseObj){
+			
+			let dataSource = responseObj.dataTable;
+			
+			FusionCharts.ready(function() {
+				var myChart = new FusionCharts({
+					type: "msline",
+					renderAt: "chart_target",
+					width: "100%",
+					height: "100%",
+					dataFormat: "json",
+					dataSource:dataSource
+				}).render();
+			});
+		},
+		'google':function(responseObj){
+			
+			let dataTable 	= new google.visualization.DataTable(responseObj.dataTable);
+			
+			let options		= responseObj.options;
+			
+			let chart 		= new google.charts.Line(chartTarget);
+			
+			if(height<500 || width<900){
+				options.chart.subtitle = "";
+			}
+			else{
+				options.chart.subtitle = "where worst-case-normalization is based on population age-distributions informed by age to IFR (infection fatality rate) relationships";
+			}
+			
+			chart.draw(
+				dataTable, 
+				google.charts.Line.convertOptions(options)
+			);
+		},
+		// 'pluscharts':function(responseObj){},
+		'rgraph':function(responseObj){}
+	};
+	
+	// Objects for use in flushing libraries.
+	let tagsBefore 	= {};
+	let propsBefore = {};
+	let cllidnt 	= Math.round(Math.random()*100000);
+	
+	// Check browser capabilities to choose 
+	// data loading and processing type: 
+	// worker / in-line-script
+	if(window.Worker){
+		
+		data_worker = new Worker("edj_covid_data_worker.js");
+		
+		// add an event listener to the new worker
+		compat_AddListener(data_worker, 'message', 	workerMessage);
+		
+		// Prep state variables to ease later transitions
+		// between chart library scripts.
+		initLibraryReset();
+		
+		loadLibrary('google');
+		
+		pageLoaded = 1;
+	}
+	else{
+		// The browser doesn't support web workers,
+		// so append a data-handler script to the body.
+		// The appended script will update the data_worker object,
+		// providing a simple postMessage method.
+		
+		let dataScript = document.createElement("SCRIPT");
+		
+		compat_AddListener(dataScript, 'load', dataScriptLoaded);
+		
+		dataScript.src = "edj_covid_data_script.js";
+		
+		document.body.appendChild(dataScript);
+		// put a pageLoaded = 1 in the script that gets loaded
+	}
+
+	
+	function requestData(requestObj){
+		
+		data_worker.postMessage(requestObj);
+	}
+	
+	function requestSubset(continent, subcontinent){
+		
+		queryObj.options.choiceArr = Object.keys(availableSubsets[continent][subcontinent].meetMin);
+		
+		requestData(queryObj);
+	}
+	
+	// define your worker listener event handlers
+	function workerMessage(e){
+		
+		// handle errors ...?
+		
+		// if no errors
+		
+		if(e.data.routeTo === "placeChartMenuHTML"){
+			
+			placeChartMenuHTML(e.data.chartMenuHTML);
+			
+		}
+		else{
+		
+			let whichLibrary = e.data.routeTo;
+			
+			buildCharts[whichLibrary](e.data);
+		}
+	}
+	
+	function dataScriptLoaded(){
+		
+		initLibraryReset();
+
+		// initialize the dropdown menus
+		requestData({
+			'dataFile'	:'loadMenus',
+			'options'	:{},
+			'routeTo'	:'loadMenus'
+		});
+	}
+
+		
+	
+// Init tags and props lists to 
+// define reset state.
+	function initLibraryReset(){
+		
+		tagsBefore 	= initTagsBefore();
+		
+		propsBefore = initPropsBefore();
+	}
+
+	function flushLibraries(){
+		
+		removeTags();
+		
+		flushWinProps();
+	}
+	
+	// Initialize savedTags object
+	function initTagsBefore(){
+		// Determine initial set of scriptcetera
+		// (js files, css files, meta, etc)
+		
+		let workingObj = {};
+		
+		let tags = ["LINK","META","NOSCRIPT","SCRIPT","STYLE"];
+		let collection;
+		let tagNum = 0;
+		
+		for(let i=0, imax=tags.length; i<imax; i++){
+			
+			collection = document.getElementsByTagName(tags[i]);
+			
+			for(let key in collection){
+				
+				if(collection.hasOwnProperty(key)){
+				
+					if(!collection[key].id){
+						collection[key].id = "found" + cllidnt + "_" + tagNum;
+						tagNum++;
+					}
+					
+					workingObj[ collection[key].id ] = 1;
+				}
+			}
+		}
+		
+		return workingObj;
+	}
+	
+	// Mutate the window
+	function removeTags(){
+		// Remove scriptcetera tags that were 
+		// added after the savedTags initialization.	
+		let tags = ["LINK","META","NOSCRIPT","SCRIPT","STYLE"];
+		let collection;
+		let thisNode;
+		let j;
+		
+		for(let i=0, imax=tags.length; i<imax; i++){
+			
+			collection = document.getElementsByTagName(tags[i]);
+			
+			for(j=0, jmax=collection.length; j<jmax; j++){
+				if(collection.hasOwnProperty(j)){
+				
+					if( !collection[j].id || !tagsBefore[ collection[j].id ] ){
+						
+						thisNode = collection[j];
+						
+						thisNode.parentNode.removeChild(thisNode);
+						
+						j--;
+					}
+				}
+			}
+		}
+	}
+		
+	// Initialize winProp Flusher object
+	function initPropsBefore(){
+		
+		let workingObj = {};
+		
+		for(let key in window){
+			
+			workingObj[key] = 1;
+		}
+		
+		return workingObj;
+	}
+		
+	// Mutate the window
+	function flushWinProps(){
+	
+		chartTarget.innerHTML = "";
+		
+		let after = initPropsBefore();
+		
+		for(let key in after){
+		
+			if(!propsBefore[key] && key !== 'location' && key !== 'setTimeout'){
+				
+				window[key] = null;
+			}
+		}
+	}
+
+
+
+	function loadLibrary(whichLibrary){
+		
+		// Flush previous library
+		flushLibraries();
+	
+		
+		// LOAD LIBRARY FILES
+		
+		// get arrays containing js and css filenames
+		let libJS 	= availableLibraries[whichLibrary].libraryFiles.js;
+		let libCSS 	= availableLibraries[whichLibrary].libraryFiles.css;
+		
+		let elements 	= [];
+		let j			= 0;
+		let k			= 0;
+		
+		// loop through both arrays
+		// and create tags for listed filenames
+		for(let i=0, imax=Math.max(libJS.length, libCSS.length); i<imax; i++){
+		
+			if(libJS[i]){
+				
+				elements[j] = document.createElement("SCRIPT");
+				
+				compat_AddListener(elements[j], 'load', libraryLoadedHandlers, whichLibrary);
+				
+				document.body.appendChild(elements[j]);
+				
+				elements[j].src = libJS[i];
+				
+				j++;
+				k++;
+			}
+			
+			if(libCSS[i]){
+				
+				elements[j] = document.createElement("LINK");
+				
+				elements[j].href = libCSS[i];
+				
+				document.head.appendChild(elements[j]);
+				
+				j++;
+			}
+		}
+		
+		availableLibraries[whichLibrary].isLoaded.fileCount = k;
+	}
+})(window, document);
+
+</script>
+</body>
+</html>
